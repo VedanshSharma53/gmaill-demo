@@ -1,4 +1,8 @@
-import { CHUNK_OVERLAP_CHARS, CHUNK_SIZE_CHARS } from "@/lib/ai/models";
+import {
+  CHUNK_OVERLAP_CHARS,
+  CHUNK_SIZE_CHARS,
+  NIM_MAX_INPUT_CHARS,
+} from "@/lib/ai/models";
 
 export function chunkText(text: string): string[] {
   if (!text.trim()) return [];
@@ -18,7 +22,10 @@ export function chunkText(text: string): string[] {
       }
     }
 
-    const chunk = text.slice(start, end).trim();
+    let chunk = text.slice(start, end).trim();
+    if (chunk.length > NIM_MAX_INPUT_CHARS) {
+      chunk = chunk.slice(0, NIM_MAX_INPUT_CHARS);
+    }
     if (chunk) chunks.push(chunk);
 
     if (end >= text.length) break;

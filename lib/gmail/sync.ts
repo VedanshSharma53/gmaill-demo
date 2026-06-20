@@ -8,11 +8,11 @@ import {
   stripHtml,
 } from "@/lib/gmail/mime";
 import { classifyEmail } from "@/lib/ai/gemini";
-import { summarizeEmail, summarizeThread } from "@/lib/ai/summarize";
+import { summarizeEmail } from "@/lib/ai/summarize";
 import { embedEmailChunks } from "@/lib/ai/rag";
 import type { EmailCategory } from "@/types";
 
-const BATCH_SIZE = 50;
+const BATCH_SIZE = 5;
 
 interface SyncCursor {
   page_token?: string;
@@ -403,6 +403,9 @@ async function processMessage(
 
   if (!email) return;
 
+  // Sent mail: store only — skip Gemini/NIM to save quota on demo tier
+  if (isSent) return;
+
   try {
     const classification = await classifyEmail(subject, bodyText, fromEmail);
     const validCategories = [
@@ -431,11 +434,9 @@ async function processMessage(
 
     await embedEmailChunks(userId, email.id, thread.id, bodyText);
 
-    const threadSummary = await summarizeThread(thread.id);
     await supabase
       .from("threads")
       .update({
-        thread_summary: threadSummary,
         category,
         message_count: await countThreadMessages(thread.id),
       })

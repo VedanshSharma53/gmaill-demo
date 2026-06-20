@@ -3,6 +3,8 @@ import { requireSessionUser, jsonError } from "@/lib/auth/session";
 import { runSyncBatch } from "@/lib/gmail/sync";
 import { createServiceClient } from "@/lib/supabase/server";
 
+export const maxDuration = 60;
+
 export async function POST(request: NextRequest) {
   try {
     const user = await requireSessionUser();

@@ -1,4 +1,4 @@
-import { EMBED_DIM, NVIDIA_EMBED_MODEL } from "@/lib/ai/models";
+import { EMBED_DIM, NIM_MAX_INPUT_CHARS, NVIDIA_EMBED_MODEL } from "@/lib/ai/models";
 
 const BASE_URL =
   process.env.NVIDIA_NIM_BASE_URL ?? "https://integrate.api.nvidia.com/v1";
@@ -21,7 +21,7 @@ async function embedWithType(
     },
     body: JSON.stringify({
       model: NVIDIA_EMBED_MODEL,
-      input: [text.slice(0, 8000)],
+      input: [text.slice(0, NIM_MAX_INPUT_CHARS)],
       input_type: inputType,
       encoding_format: "float",
     }),

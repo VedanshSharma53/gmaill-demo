@@ -143,14 +143,18 @@ export async function embedEmailChunks(
   await supabase.from("email_chunks").delete().eq("email_id", emailId);
 
   for (let i = 0; i < chunks.length; i++) {
-    const embedding = await embedPassage(chunks[i]);
-    await supabase.from("email_chunks").insert({
-      email_id: emailId,
-      thread_id: threadId,
-      user_id: userId,
-      chunk_index: i,
-      chunk_text: chunks[i],
-      embedding,
-    });
+    try {
+      const embedding = await embedPassage(chunks[i]);
+      await supabase.from("email_chunks").insert({
+        email_id: emailId,
+        thread_id: threadId,
+        user_id: userId,
+        chunk_index: i,
+        chunk_text: chunks[i],
+        embedding,
+      });
+    } catch (err) {
+      console.warn(`[embed] skipped chunk ${i} for email ${emailId}:`, err);
+    }
   }
 }
